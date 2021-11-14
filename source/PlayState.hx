@@ -354,6 +354,10 @@ class PlayState extends MusicBeatState
 
 		switch (curStage)
 		{
+			case 'city': //Week MONO!!!
+			var bg:BGSprite = new BGSprite('city/city', -630, -355, 0.9, 0.9);
+			add(bg);
+
 			case 'stage': //Week 1
 				var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
 				add(bg);
@@ -1438,7 +1442,15 @@ class PlayState extends MusicBeatState
 		previousFrameTime = FlxG.game.ticks;
 		lastReportedPlayheadPosition = 0;
 
-		FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+		if(CoolUtil.difficultyString() == 'REPAINTED')
+			{
+				FlxG.sound.playMusic(Paths.instRE(PlayState.SONG.song), 1, false);	
+			}
+		else
+			{
+			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+			}
+
 		FlxG.sound.music.onComplete = finishSong;
 		vocals.play();
 
@@ -1475,12 +1487,27 @@ class PlayState extends MusicBeatState
 		curSong = songData.song;
 
 		if (SONG.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
+			if(CoolUtil.difficultyString() == 'REPAINTED')
+			{
+				vocals = new FlxSound().loadEmbedded(Paths.voicesRE(PlayState.SONG.song));
+			}
+			else
+			{
+				vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
+			}
 		else
 			vocals = new FlxSound();
 
 		FlxG.sound.list.add(vocals);
-		FlxG.sound.list.add(new FlxSound().loadEmbedded(Paths.inst(PlayState.SONG.song)));
+		
+		if(CoolUtil.difficultyString() == 'REPAINTED')
+			{
+				FlxG.sound.list.add(new FlxSound().loadEmbedded(Paths.instRE(PlayState.SONG.song)));
+			}
+		else
+			{
+				FlxG.sound.list.add(new FlxSound().loadEmbedded(Paths.inst(PlayState.SONG.song)));
+			}
 
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
@@ -2430,6 +2457,78 @@ class PlayState extends MusicBeatState
 
 	public function triggerEventNote(eventName:String, value1:String, value2:String) {
 		switch(eventName) {
+			case 'Monochrome Nervous':
+				var charType:Int = 0;
+				switch(value1) {
+					case 'gf' | 'girlfriend':
+						charType = 2;
+					case 'dad' | 'opponent':
+						charType = 1;
+					default:
+						charType = Std.parseInt(value1);
+						if(Math.isNaN(charType)) charType = 0;
+				}
+
+				switch(charType) {
+					case 0:
+						if(boyfriend.curCharacter != value2) {
+							if(!boyfriendMap.exists(value2)) {
+								addCharacterToList(value2, charType);
+							}
+
+							boyfriend.visible = false;
+							boyfriend = boyfriendMap.get(value2);
+							if(!boyfriend.alreadyLoaded) {
+								boyfriend.alpha = 1;
+								boyfriend.alreadyLoaded = true;
+							}
+							boyfriend.visible = true;
+							iconP1.changeIcon(boyfriend.healthIcon);
+						}
+
+					case 1:
+						if(Math.floor(ratingPercent * 100) > 75 && dad.curCharacter == 'monochrome') //come back
+						{
+							if(dad.curCharacter != value2) {
+								if(!dadMap.exists(value2)) {
+									addCharacterToList(value2, charType);
+								}
+	
+								var wasGf:Bool = dad.curCharacter.startsWith('gf');
+								dad.visible = false;
+								dad = dadMap.get(value2);
+								if(!dad.curCharacter.startsWith('gf')) {
+									if(wasGf) {
+										gf.visible = true;
+									}
+								} else {
+									gf.visible = false;
+								}
+								if(!dad.alreadyLoaded) {
+									dad.alpha = 1;
+									dad.alreadyLoaded = true;
+								}
+								dad.visible = true;
+								iconP2.changeIcon(dad.healthIcon);
+							}
+						}
+
+					case 2:
+						if(gf.curCharacter != value2) {
+							if(!gfMap.exists(value2)) {
+								addCharacterToList(value2, charType);
+							}
+
+							gf.visible = false;
+							gf = gfMap.get(value2);
+							if(!gf.alreadyLoaded) {
+								gf.alpha = 1;
+								gf.alreadyLoaded = true;
+							}
+						}
+				}
+				reloadHealthBarColors();
+
 			case 'Hey!':
 				var value:Int = 2;
 				switch(value1.toLowerCase().trim()) {

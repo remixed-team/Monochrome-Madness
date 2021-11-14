@@ -137,12 +137,26 @@ class LoadingState extends MusicBeatState
 	
 	static function getSongPath()
 	{
-		return Paths.inst(PlayState.SONG.song);
+		if(CoolUtil.difficultyString() == 'REPAINTED')
+			{
+				return Paths.instRE(PlayState.SONG.song);
+			}
+		else
+			{
+				return Paths.inst(PlayState.SONG.song);
+			}
 	}
 	
 	static function getVocalPath()
 	{
-		return Paths.voices(PlayState.SONG.song);
+		if(CoolUtil.difficultyString() == 'REPAINTED')
+			{
+				return Paths.voicesRE(PlayState.SONG.song);
+			}
+		else
+			{
+				return Paths.voices(PlayState.SONG.song);
+			}
 	}
 	
 	inline static public function loadAndSwitchState(target:FlxState, stopMusic = false)
